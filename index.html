@@ -28,8 +28,9 @@
   --text:#eef1f8;
   --muted:#8f9ab3;
   --blue:#4a7dff;       /* main accent */
-  --amber:#ffc94d;      /* prices + "most popular" */
-  --green:#3ddc97;      /* "open for commissions" dot */
+  --amber:#ffc94d;      /* "most popular", hard hats, headphones */
+  --green:#3ddc97;      /* "open for commissions" dot, success output */
+  --pink:#ff7ab6;       /* code keywords */
 
   --font-d:'Bricolage Grotesque',system-ui,'Segoe UI',sans-serif;
   --font-b:'Instrument Sans',system-ui,'Segoe UI',sans-serif;
@@ -42,24 +43,28 @@ html{scroll-behavior:smooth;scroll-padding-top:84px}
 body{background:var(--bg);color:var(--text);font-family:var(--font-b);font-size:1rem;line-height:1.6;
   -webkit-font-smoothing:antialiased;overflow-x:hidden}
 /* faint studio-style dot grid behind everything */
-body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
   background-image:radial-gradient(rgba(255,255,255,.07) 1px,transparent 1px);background-size:28px 28px;
-  mask-image:linear-gradient(#000,transparent 70%);-webkit-mask-image:linear-gradient(#000,transparent 70%)}
+  mask-image:linear-gradient(#000,transparent 75%);-webkit-mask-image:linear-gradient(#000,transparent 75%)}
 ::selection{background:var(--blue);color:#fff}
 a{color:inherit}
 :focus-visible{outline:2px solid var(--amber);outline-offset:3px;border-radius:6px}
 
 .wrap{width:min(1120px,90vw);margin-inline:auto}
-section{padding:clamp(72px,10vw,120px) 0}
+section{padding:clamp(72px,10vw,120px) 0;position:relative}
 h2{font-family:var(--font-d);font-weight:800;font-size:clamp(2rem,4.6vw,3rem);line-height:1.05;letter-spacing:-.03em}
 .sub{color:var(--muted);font-size:1.05rem;max-width:58ch;margin-top:12px}
+
+/* "build progress" bar at the very top, fills as you scroll */
+.progress{position:fixed;top:0;left:0;height:2px;width:100%;z-index:60;transform-origin:0 50%;transform:scaleX(0);
+  background:linear-gradient(90deg,var(--blue),var(--green))}
 
 /* ---------- buttons ---------- */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:13px 22px;border-radius:12px;
   font:600 .95rem var(--font-b);text-decoration:none;cursor:pointer;border:1px solid transparent;
   transition:background .2s,border-color .2s,transform .2s}
 .btn:active{transform:translateY(1px)}
-.btn-main{background:var(--blue);color:#fff}
+.btn-main{background:var(--blue);color:#fff;box-shadow:0 8px 24px -10px var(--blue)}
 .btn-main:hover{background:#3a6cf0}
 .btn-ghost{background:transparent;color:var(--text);border-color:var(--line)}
 .btn-ghost:hover{border-color:var(--muted)}
@@ -69,15 +74,16 @@ h2{font-family:var(--font-d);font-weight:800;font-size:clamp(2rem,4.6vw,3rem);li
 nav{position:fixed;inset:0 0 auto;z-index:50;padding:14px 0;transition:background .3s,border-color .3s;border-bottom:1px solid transparent}
 nav.stuck{background:rgba(15,21,36,.85);backdrop-filter:blur(14px);border-bottom-color:var(--line)}
 .nav-in{display:flex;align-items:center;gap:28px}
-.logo{font:800 1.25rem var(--font-d);letter-spacing:-.03em;text-decoration:none;margin-right:auto}
-.logo i{font-style:normal;color:var(--blue)}
+.logo{font:800 1.25rem var(--font-d);letter-spacing:-.03em;text-decoration:none;margin-right:auto;display:flex;align-items:center;gap:9px}
+.logo .mark{width:26px;height:26px;border-radius:7px;background:var(--blue);display:grid;place-items:center;
+  font:500 .8rem var(--font-m);color:#fff;transform:rotate(-8deg)}
 .nav-links{display:flex;gap:26px;list-style:none}
 .nav-links a{color:var(--muted);text-decoration:none;font-weight:500;font-size:.95rem}
 .nav-links a:hover{color:var(--text)}
 nav .btn{padding:10px 16px;font-size:.9rem}
 
 /* ---------- hero ---------- */
-.hero{padding-top:clamp(120px,16vw,170px);padding-bottom:clamp(60px,8vw,90px)}
+.hero{padding-top:clamp(120px,16vw,170px);padding-bottom:clamp(60px,8vw,90px);position:relative}
 .hero-grid{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(36px,5vw,64px);align-items:center}
 .status{display:inline-flex;align-items:center;gap:9px;font-size:.88rem;font-weight:500;color:var(--text);
   padding:6px 14px 6px 12px;border:1px solid var(--line);border-radius:100px;background:var(--surface);margin-bottom:24px}
@@ -90,45 +96,91 @@ h1{font-family:var(--font-d);font-weight:800;font-size:clamp(2.6rem,6.4vw,4.6rem
 .fact b{display:block;font:700 1.5rem var(--font-d);letter-spacing:-.02em}
 .fact span{font-size:.85rem;color:var(--muted)}
 
+/* floating "parts" in the hero background */
+.parts{position:absolute;inset:0;z-index:-1;pointer-events:none;overflow:hidden}
+.parts i{position:absolute;width:var(--s);height:var(--s);border-radius:5px;border:1.5px solid var(--c);opacity:.35;
+  left:var(--x);top:var(--y);transform:rotate(var(--r))}
+@media(prefers-reduced-motion:no-preference){
+  .parts i{animation:float var(--t) ease-in-out infinite alternate}
+  @keyframes float{to{transform:translateY(-26px) rotate(calc(var(--r) + 40deg))}}
+}
+
 /* the code editor panel — the hero's centerpiece */
-.editor{background:#0b1120;border:1px solid var(--line);border-radius:16px;overflow:hidden;
-  box-shadow:0 40px 80px -40px rgba(74,125,255,.45);font-family:var(--font-m);font-size:.84rem}
+.editor-wrap{position:relative;padding-top:100px}
+.editor{position:relative;background:#0b1120;border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  box-shadow:0 40px 80px -40px rgba(74,125,255,.55);font-family:var(--font-m);font-size:.84rem}
 .ed-top{display:flex;align-items:center;gap:8px;padding:11px 14px;background:var(--surface);border-bottom:1px solid var(--line)}
 .ed-top i{width:11px;height:11px;border-radius:50%;background:var(--line)}
 .ed-tab{margin-left:10px;color:var(--text);font-size:.78rem;padding:4px 10px;background:#0b1120;border-radius:7px;border:1px solid var(--line)}
 .ed-code{padding:18px 0;overflow-x:auto;counter-reset:ln}
 .ed-code div{white-space:pre;padding:0 18px 0 0;line-height:1.75;color:#c9d3ea}
 .ed-code div::before{counter-increment:ln;content:counter(ln);display:inline-block;width:3.2em;padding-right:1.2em;text-align:right;color:#3c4a6b}
-.k{color:#ff7ab6}.f{color:#7fb2ff}.s{color:#ffd27a}.n{color:#7ee0b5}.c{color:#56617f;font-style:italic}
+.ed-code .hl{background:rgba(74,125,255,.1);box-shadow:inset 2px 0 var(--blue)}
+.caret{display:inline-block;width:8px;height:1.1em;background:var(--blue);vertical-align:-3px;margin-left:2px}
+.k{color:var(--pink)}.f{color:#7fb2ff}.s{color:#ffd27a}.n{color:#7ee0b5}.c{color:#56617f;font-style:italic}
 .ed-out{border-top:1px solid var(--line);padding:12px 18px;background:var(--surface);color:var(--muted);font-size:.78rem}
 .ed-out b{color:var(--green);font-weight:500}
-/* the one load animation: code lines type in */
 @media(prefers-reduced-motion:no-preference){
   .ed-code div{opacity:0;transform:translateX(-6px);animation:line .35s ease-out forwards;animation-delay:calc(var(--i)*70ms + .2s)}
   .ed-out{opacity:0;animation:line .4s ease-out forwards;animation-delay:1.4s}
   @keyframes line{to{opacity:1;transform:none}}
+  .caret{animation:blink 1s steps(2) infinite}
+  @keyframes blink{50%{opacity:0}}
+}
+
+/* ---------- little blocky dev characters ---------- */
+.dev{position:absolute;pointer-events:none;z-index:3}
+.dev svg{display:block;width:100%;height:auto;overflow:visible}
+/* sitting on the top edge of a box: the seat line sits exactly on the edge */
+.dev.sit{width:120px;top:-84px}
+.dev.stand{width:88px}
+.bubble{position:absolute;white-space:nowrap;font:500 .72rem var(--font-m);color:var(--text);background:var(--surface2);
+  border:1px solid var(--line);padding:4px 9px;border-radius:8px;bottom:100%;left:50%;transform:translateX(-50%);margin-bottom:4px}
+.bubble::after{content:'';position:absolute;top:100%;left:50%;margin-left:-5px;border:5px solid transparent;border-top-color:var(--line)}
+@media(prefers-reduced-motion:no-preference){
+  .leg-l{animation:swingL 1.6s ease-in-out infinite;transform-origin:34px 56px}
+  .leg-r{animation:swingR 1.6s ease-in-out infinite;transform-origin:46px 56px}
+  @keyframes swingL{50%{transform:rotate(14deg)}}
+  @keyframes swingR{50%{transform:rotate(-12deg)}}
+  .tap{animation:tap .45s ease-in-out infinite alternate}
+  .tap2{animation:tap .45s ease-in-out infinite alternate-reverse}
+  @keyframes tap{to{transform:translateY(-2px)}}
+  .hammer{animation:hammer .9s cubic-bezier(.5,0,.5,1) infinite;transform-origin:49px 38px}
+  @keyframes hammer{0%,100%{transform:rotate(-12deg)}45%{transform:rotate(28deg)}}
+  .glow{animation:glow 2s ease-in-out infinite}
+  @keyframes glow{50%{opacity:.45}}
+  .bubble{animation:bob 3s ease-in-out infinite}
+  @keyframes bob{50%{transform:translate(-50%,-3px)}}
 }
 
 /* ---------- work ---------- */
 .work-head{display:flex;justify-content:space-between;align-items:end;gap:24px;flex-wrap:wrap}
 .tabs{display:inline-flex;gap:4px;padding:5px;background:var(--surface);border:1px solid var(--line);border-radius:14px}
-.tab{font:600 .92rem var(--font-b);color:var(--muted);background:none;border:0;padding:9px 16px;border-radius:10px;cursor:pointer;transition:color .2s,background .2s}
+.tab{display:inline-flex;align-items:center;gap:8px;font:600 .92rem var(--font-b);color:var(--muted);background:none;border:0;
+  padding:9px 16px;border-radius:10px;cursor:pointer;transition:color .2s,background .2s}
+.tab svg{width:16px;height:16px;flex:none}
 .tab:hover{color:var(--text)}
 .tab.active{background:var(--blue);color:#fff}
-.tab .count{font-weight:500;opacity:.65;margin-left:6px}
-.work-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:22px;margin-top:36px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:border-color .2s}
-.card:hover{border-color:#3a4870}
-.card.hidden{display:none}
-@media(prefers-reduced-motion:no-preference){.card.pop{animation:pop .35s ease-out}@keyframes pop{from{opacity:0;transform:translateY(8px)}}}
+.tab .count{font:500 .78rem var(--font-m);opacity:.7}
+.work{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:22px;margin-top:36px}
+.hidden{display:none!important}
+@media(prefers-reduced-motion:no-preference){.pop{animation:pop .4s ease-out}@keyframes pop{from{opacity:0;transform:translateY(10px)}}}
+
+/* clip card */
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:border-color .25s,transform .25s}
+/* glow that follows your mouse inside the card */
+.card::after{content:'';position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .3s;
+  background:radial-gradient(360px circle at var(--mx,50%) var(--my,50%),rgba(74,125,255,.14),transparent 60%)}
+.card:hover{border-color:#3a4870;transform:translateY(-3px)}
+.card:hover::after{opacity:1}
 .thumb{position:relative;aspect-ratio:16/9;cursor:pointer;display:grid;place-items:center;
   background:#0b1120 center/cover;border-bottom:1px solid var(--line)}
 .thumb::before{content:'';position:absolute;inset:0;
   background-image:radial-gradient(rgba(255,255,255,.08) 1px,transparent 1px);background-size:18px 18px}
-.thumb.has-poster::before{background:linear-gradient(transparent 40%,rgba(11,17,32,.7))}
+.thumb.has-poster::before{background:linear-gradient(transparent 40%,rgba(11,17,32,.75))}
 .play{position:relative;width:56px;height:56px;border-radius:50%;background:rgba(255,255,255,.95);
   display:grid;place-items:center;transition:transform .2s;box-shadow:0 8px 24px rgba(0,0,0,.35)}
-.thumb:hover .play{transform:scale(1.08)}
+.thumb:hover .play{transform:scale(1.1)}
 .play::after{content:'';border-left:15px solid var(--bg);border-top:9px solid transparent;border-bottom:9px solid transparent;margin-left:4px}
 .soon{position:absolute;bottom:12px;left:14px;font-size:.8rem;color:var(--muted)}
 .thumb video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;background:#000}
@@ -139,18 +191,39 @@ h1{font-family:var(--font-d);font-weight:800;font-size:clamp(2.6rem,6.4vw,4.6rem
 .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
 .tag{font-family:var(--font-m);font-size:.72rem;padding:3px 9px;border-radius:6px;background:var(--surface2);color:#aab8dc}
 
+/* project group: one title, all its clips underneath, joined by a tree line */
+.project{grid-column:1/-1;position:relative}
+.project + .project{margin-top:26px}
+.project-head{display:flex;align-items:center;gap:16px;padding:18px 22px;background:var(--surface);
+  border:1px solid var(--line);border-radius:var(--r);position:relative}
+.project-icon{flex:none;width:46px;height:46px;border-radius:12px;display:grid;place-items:center;
+  background:var(--surface2);color:var(--amber)}
+.project-icon svg{width:24px;height:24px}
+.project-head h3{font:800 1.5rem var(--font-d);letter-spacing:-.03em;line-height:1.1}
+.project-head p{color:var(--muted);font-size:.95rem;margin-top:3px;max-width:70ch}
+.project-head .clips{margin-left:auto;flex:none;font:500 .8rem var(--font-m);color:var(--muted);
+  padding:5px 10px;border:1px solid var(--line);border-radius:8px}
+.project-clips{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;
+  margin-left:22px;padding:22px 0 0 26px;border-left:2px dashed var(--line);position:relative}
+.project-clips .card::before{content:'';position:absolute;left:-28px;top:42px;width:26px;border-top:2px dashed var(--line)}
+.project-clips .card{overflow:visible}
+.project-clips .card .thumb{border-radius:var(--r) var(--r) 0 0;overflow:hidden}
+
 /* ---------- process ---------- */
-.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px;counter-reset:st}
-.step{padding:26px;border-left:2px solid var(--line)}
+.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px;counter-reset:st;position:relative}
+.step{padding:26px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);position:relative}
 .step::before{counter-increment:st;content:counter(st);display:grid;place-items:center;width:34px;height:34px;border-radius:10px;
   background:var(--surface2);color:var(--blue);font:700 1rem var(--font-d);margin-bottom:16px}
 .step h3{font:700 1.15rem var(--font-d);margin-bottom:6px}
 .step p{color:var(--muted);font-size:.95rem}
+/* arrows between steps */
+.step:not(:last-child)::after{content:'';position:absolute;right:-17px;top:42px;width:12px;height:12px;z-index:2;
+  border-top:2px solid var(--muted);border-right:2px solid var(--muted);transform:rotate(45deg)}
 
 /* ---------- pricing ---------- */
-.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:40px;align-items:stretch}
-.price{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:30px 28px}
-.price.hot{border-color:var(--amber);position:relative}
+.price-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:96px;align-items:stretch}
+.price{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:30px 28px;position:relative}
+.price.hot{border-color:var(--amber);box-shadow:0 30px 70px -40px rgba(255,201,77,.45)}
 .pop-tag{position:absolute;top:-12px;left:28px;background:var(--amber);color:#1a1405;font-size:.78rem;font-weight:600;padding:3px 11px;border-radius:100px}
 .price h3{font:700 1.15rem var(--font-d)}
 .price .for{color:var(--muted);font-size:.92rem;margin:2px 0 18px}
@@ -166,7 +239,7 @@ h1{font-family:var(--font-d);font-weight:800;font-size:clamp(2.6rem,6.4vw,4.6rem
 
 /* ---------- contact ---------- */
 .contact{background:var(--surface);border:1px solid var(--line);border-radius:20px;padding:clamp(32px,6vw,60px);
-  display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center}
+  display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;position:relative}
 .handles{display:grid;gap:12px}
 .handle{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;background:var(--bg);border:1px solid var(--line);
   text-decoration:none;cursor:pointer;font:inherit;color:inherit;text-align:left;width:100%;transition:border-color .2s}
@@ -179,7 +252,9 @@ h1{font-family:var(--font-d);font-weight:800;font-size:clamp(2.6rem,6.4vw,4.6rem
 .handle .act{margin-left:auto;font-size:.85rem;color:var(--blue);font-weight:600}
 
 footer{padding:34px 0 44px;color:var(--muted);font-size:.9rem}
-footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
+footer .wrap{display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.term{font-family:var(--font-m);font-size:.85rem}
+.term b{color:var(--green);font-weight:500}
 
 /* copy toast */
 .toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);opacity:0;pointer-events:none;z-index:60;
@@ -190,27 +265,44 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 @media(max-width:900px){
   .hero-grid,.contact{grid-template-columns:1fr}
   .steps,.price-grid{grid-template-columns:1fr}
+  .step:not(:last-child)::after{right:auto;left:40px;top:auto;bottom:-17px;transform:rotate(135deg)}
   .price.hot{order:-1}
+  .dev.hide-sm{display:none}
 }
 @media(max-width:640px){
   .nav-links{display:none}
   .cta-row .btn{flex:1 1 100%}
   .facts{display:grid;grid-template-columns:1fr 1fr}
   .tabs{width:100%;overflow-x:auto}
-  .tab{flex:1;white-space:nowrap}
-  .work-grid{grid-template-columns:1fr}
-  .editor{font-size:.74rem}
+  .tab{flex:1;justify-content:center;white-space:nowrap;padding:9px 8px;font-size:.86rem;gap:6px}
+  .tab svg{display:none}
+  .work,.project-clips{grid-template-columns:1fr}
+  .project-head{flex-wrap:wrap}
+  .project-head .clips{margin-left:0}
+  .project-clips{margin-left:10px;padding-left:16px}
+  .project-clips .card::before{left:-18px;width:16px}
+  .editor{font-size:.72rem}
+  .dev.sit{width:96px;top:-67px}
+  .editor-wrap{padding-top:80px}
+  .editor-wrap .dev.sit{top:13px!important}
 }
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition-duration:.01ms!important}}
 </style>
 </head>
 <body>
 
-<!-- Discord logo, reused below -->
-<svg width="0" height="0" style="position:absolute"><symbol id="dc" viewBox="0 0 24 24"><path fill="currentColor" d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18 18 0 0 0-5.6 0L8.6 3a19.5 19.5 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18.1a19.8 19.8 0 0 0 6 3l1.3-2a12.7 12.7 0 0 1-2-1l.5-.4a14 14 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2a19.7 19.7 0 0 0 6-3c.5-5.2-.9-9.7-3.6-13.7ZM8 15.4c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.6 8 10.6s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></symbol></svg>
+<!-- ============ reusable drawings (Discord logo + the two dev characters) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="dc" viewBox="0 0 24 24"><path fill="currentColor" d="M20.3 4.4A19.6 19.6 0 0 0 15.4 3l-.6 1.3a18 18 0 0 0-5.6 0L8.6 3a19.5 19.5 0 0 0-4.9 1.5C.6 9.1-.3 13.6.1 18.1a19.8 19.8 0 0 0 6 3l1.3-2a12.7 12.7 0 0 1-2-1l.5-.4a14 14 0 0 0 12.2 0l.5.4c-.6.4-1.3.7-2 1l1.3 2a19.7 19.7 0 0 0 6-3c.5-5.2-.9-9.7-3.6-13.7ZM8 15.4c-1.2 0-2.2-1.1-2.2-2.4S6.8 10.6 8 10.6s2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Zm8 0c-1.2 0-2.2-1.1-2.2-2.4s1-2.4 2.2-2.4 2.2 1.1 2.2 2.4-1 2.4-2.2 2.4Z"/></symbol>
+  <symbol id="folder" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4l2 2.2h9A1.5 1.5 0 0 1 21 8.7v9.8a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18.5Z"/></symbol>
+  <symbol id="file" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M6 3h8l4 4v14H6Z M14 3v4h4"/></symbol>
+  <symbol id="cube" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 3 20 7.5v9L12 21l-8-4.5v-9Z M4 7.5l8 4.5 8-4.5 M12 12v9"/></symbol>
+</svg>
+
+<div class="progress" id="progress"></div>
 
 <nav id="nav"><div class="wrap nav-in">
-  <a href="#top" class="logo">ashton<i>.</i></a>
+  <a href="#top" class="logo"><span class="mark">{}</span>ashton</a>
   <ul class="nav-links">
     <li><a href="#work">Work</a></li>
     <li><a href="#process">How it works</a></li>
@@ -221,6 +313,15 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
 <!-- ================= HERO ================= -->
 <header class="hero" id="top">
+  <div class="parts" aria-hidden="true">
+    <i style="--x:6%;--y:22%;--s:34px;--r:12deg;--c:var(--blue);--t:7s"></i>
+    <i style="--x:44%;--y:12%;--s:18px;--r:-20deg;--c:var(--amber);--t:9s"></i>
+    <i style="--x:88%;--y:20%;--s:26px;--r:30deg;--c:var(--green);--t:8s"></i>
+    <i style="--x:52%;--y:78%;--s:22px;--r:8deg;--c:var(--pink);--t:10s"></i>
+    <i style="--x:14%;--y:84%;--s:16px;--r:45deg;--c:var(--blue);--t:6s"></i>
+    <i style="--x:94%;--y:70%;--s:40px;--r:-12deg;--c:var(--blue);--t:11s"></i>
+  </div>
+
   <div class="wrap hero-grid">
     <div>
       <span class="status">Open for commissions</span>
@@ -242,22 +343,34 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
       </div>
     </div>
 
-    <div class="editor" aria-hidden="true">
-      <div class="ed-top"><i></i><i></i><i></i><span class="ed-tab">CombatService.lua</span></div>
-      <div class="ed-code">
+    <div class="editor-wrap">
+      <!-- dev sitting on the editor, typing on a laptop -->
+      <div class="dev sit" style="right:34px;top:16px" aria-hidden="true">
+        <span class="bubble">compiling…</span>
+        <svg viewBox="0 0 80 90"><use href="#sitter"/></svg>
+      </div>
+      <!-- dev standing beside it, hammering -->
+      <div class="dev stand hide-sm" style="left:-58px;bottom:-4px;z-index:4" aria-hidden="true">
+        <svg viewBox="0 0 64 100"><use href="#builder"/></svg>
+      </div>
+
+      <div class="editor" aria-hidden="true">
+        <div class="ed-top"><i></i><i></i><i></i><span class="ed-tab">CombatService.lua</span></div>
+        <div class="ed-code">
 <div style="--i:0"><span class="c">-- server-checked punch, used in my combat system</span></div>
 <div style="--i:1"><span class="k">local</span> Hitbox = <span class="f">require</span>(script.Hitbox)</div>
 <div style="--i:2"> </div>
 <div style="--i:3"><span class="k">function</span> CombatService.<span class="f">Punch</span>(player, side)</div>
 <div style="--i:4">    <span class="k">if not</span> Sanity.<span class="f">check</span>(player, <span class="s">"Punch"</span>) <span class="k">then return end</span></div>
 <div style="--i:5"> </div>
-<div style="--i:6">    <span class="k">local</span> hits = Hitbox.<span class="f">cast</span>(player.Character, <span class="n">5.5</span>)</div>
+<div style="--i:6" class="hl">    <span class="k">local</span> hits = Hitbox.<span class="f">cast</span>(player.Character, <span class="n">5.5</span>)</div>
 <div style="--i:7">    <span class="k">for</span> _, target <span class="k">in</span> hits <span class="k">do</span></div>
 <div style="--i:8">        Damage.<span class="f">apply</span>(target, <span class="n">12</span>, side)</div>
 <div style="--i:9">    <span class="k">end</span></div>
-<div style="--i:10"><span class="k">end</span></div>
+<div style="--i:10"><span class="k">end</span><span class="caret"></span></div>
+        </div>
+        <div class="ed-out"><b>✓</b> Server: hit validated, 12 damage, right hook</div>
       </div>
-      <div class="ed-out"><b>✓</b> Server: hit validated, 12 damage, right hook</div>
     </div>
   </div>
 </header>
@@ -270,33 +383,39 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
         <h2>Stuff I've actually shipped</h2>
         <p class="sub">Click any clip to play it. Everything here was written from scratch.</p>
       </div>
-      <!-- CATEGORY TABS — to move a video to another tab, change data-cat on its card
-           to "misc", "projects" or "simulator". The counts update by themselves. -->
+      <!-- CATEGORY TABS. The numbers count clips and update by themselves. -->
       <div class="tabs" role="tablist">
-        <button class="tab active" data-filter="misc" role="tab">Misc.<span class="count"></span></button>
-        <button class="tab" data-filter="projects" role="tab">Projects<span class="count"></span></button>
-        <button class="tab" data-filter="simulator" role="tab">Simulator<span class="count"></span></button>
+        <button class="tab active" data-filter="misc" role="tab"><svg><use href="#file"/></svg>Misc.<span class="count"></span></button>
+        <button class="tab" data-filter="projects" role="tab"><svg><use href="#folder"/></svg>Projects<span class="count"></span></button>
+        <button class="tab" data-filter="simulator" role="tab"><svg><use href="#cube"/></svg>Simulator<span class="count"></span></button>
       </div>
     </div>
 
-    <div class="work-grid">
+    <div class="work">
 
       <!-- ===================================================================
            HOW TO ADD A VIDEO  (plays right here on the page — no YouTube)
 
-           1. Upload your clip to the repo. It MUST be .mp4 — that's the only
-              format every browser can play.
+           1. Upload your clip to the repo. It MUST be .mp4.
            2. Write the filename in data-src, like:  data-src="Bloxshot.mp4"
               (if it's inside a folder:  data-src="videos/Bloxshot.mp4")
+              Tip: filenames without spaces are safest, e.g. KnifeSwapAbilities.mp4
            3. Optional: a screenshot as the thumbnail:  data-poster="Bloxshot.png"
-           4. Pick the tab with data-cat: "misc", "projects" or "simulator"
 
-           SIZE LIMIT: keep every clip under 50 MB. GitHub rejects any file
-           over 100 MB. A 15-second 720p clip is about 5-10 MB.
+           MISC / SIMULATOR clip:  copy a whole <article class="card" data-cat="...">
+           block and set data-cat to "misc" or "simulator".
 
+           PROJECTS:  every game gets one <div class="project" data-cat="projects">.
+           - New clip for an existing game: copy one <article class="card"> INSIDE
+             that game's <div class="project-clips"> (no data-cat needed there).
+           - New game: copy a whole <div class="project"> block and change the
+             title + description. The "x clips" label counts itself.
+
+           SIZE LIMIT: keep every clip under 50 MB. GitHub rejects files over 100 MB.
            Leave data-src="" empty and the card shows "Clip coming soon".
            =================================================================== -->
 
+      <!-- ---------------- MISC ---------------- -->
       <article class="card" data-cat="misc">
         <div class="thumb" data-src="RealisticGuns.mp4" data-poster="GunThumbnail.png">
           <div class="play"></div><span class="soon">Clip coming soon</span>
@@ -319,35 +438,63 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
         </div>
       </article>
 
-      <article class="card" data-cat="projects">
-        <div class="thumb" data-src="Bloxshot.mp4" data-poster="ThumbnailThing.png">
-          <div class="play"></div><span class="soon">Clip coming soon</span>
+      <!-- ---------------- PROJECTS (grouped by game) ---------------- -->
+      <div class="project" data-cat="projects">
+        <div class="project-head">
+          <div class="project-icon"><svg><use href="#folder"/></svg></div>
+          <div>
+            <h3>Knife Swap</h3>
+            <p>A fast-paced game where the knife jumps to a new player every few seconds. Whoever's holding it can throw it or stab.</p>
+          </div>
+          <span class="clips"></span>
         </div>
-        <div class="card-body">
-          <h3>Bloxshot</h3>
-          <p>A past project of mine: bouncing bullets driven by angle math, hit impacts, <b>ProfileStore</b> data saving, and VFX-backed special abilities. Fully modular, with a custom camera system I wrote.</p>
-          <div class="tags"><span class="tag">Luau</span><span class="tag">AngleMath</span><span class="tag">ProfileStore</span></div>
+        <div class="project-clips">
+          <article class="card">
+            <div class="thumb" data-src="Abilities and Main Gameplay.mp4" data-poster="KnifeSwapThumbnail.png">
+              <div class="play"></div><span class="soon">Clip coming soon</span>
+            </div>
+            <div class="card-body">
+              <h3>Abilities and main gameplay</h3>
+              <p>My full ability system running alongside the core Knife Swap loop.</p>
+              <div class="tags"><span class="tag">Luau</span><span class="tag">Abilities</span><span class="tag">Gameplay</span></div>
+            </div>
+          </article>
+          <!-- add more Knife Swap clips here -->
         </div>
-      </article>
+      </div>
 
+      <div class="project" data-cat="projects">
+        <div class="project-head">
+          <div class="project-icon"><svg><use href="#folder"/></svg></div>
+          <div>
+            <h3>Bloxshot</h3>
+            <p>A past project of mine: bouncing bullets driven by angle math, <b>ProfileStore</b> data saving, and VFX-backed special abilities.</p>
+          </div>
+          <span class="clips"></span>
+        </div>
+        <div class="project-clips">
+          <article class="card">
+            <div class="thumb" data-src="Bloxshot.mp4" data-poster="ThumbnailThing.png">
+              <div class="play"></div><span class="soon">Clip coming soon</span>
+            </div>
+            <div class="card-body">
+              <h3>Gameplay overview</h3>
+              <p>Bullet bounces, hit impacts and special abilities. Fully modular, with a custom camera system I wrote.</p>
+              <div class="tags"><span class="tag">Luau</span><span class="tag">AngleMath</span><span class="tag">ProfileStore</span></div>
+            </div>
+          </article>
+          <!-- add more Bloxshot clips here -->
+        </div>
+      </div>
+
+      <!-- ---------------- SIMULATOR ---------------- -->
       <article class="card" data-cat="simulator">
         <div class="thumb" data-src="KeycapsTrend.mp4" data-poster="KeycapsThumbnail.png">
           <div class="play"></div><span class="soon">Clip coming soon</span>
         </div>
         <div class="card-body">
           <h3>Keycaps</h3>
-          <p>A highly optimized, modular keycap system for a client, built for ease and NO lag (even with 1k+ keycaps)</p>
-          <div class="tags"><span class="tag">Luau</span><span class="tag">Sizing</span><span class="tag">Client work</span></div>
-        </div>
-      </article>
-
-        <article class="card" data-cat="projects">
-        <div class="thumb" data-src="Abilities and Main Gameplay.mp4" data-poster="KnifeSwapThumbnail.png">
-          <div class="play"></div><span class="soon">Clip coming soon</span>
-        </div>
-        <div class="card-body">
-          <h3>Abilities and Main Gameplay</h3>
-          <p>This is showing my full ability system, and the main gameplay for KNIFE SWAP.</p>
+          <p>A highly optimized, modular keycap system for a client, built for ease and NO lag (even with 1k+ keycaps).</p>
           <div class="tags"><span class="tag">Luau</span><span class="tag">Sizing</span><span class="tag">Client work</span></div>
         </div>
       </article>
@@ -413,6 +560,10 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 
       <div class="price hot">
         <span class="pop-tag">Most popular</span>
+        <!-- dev sitting on the top edge of this card -->
+        <div class="dev sit" style="right:22px" aria-hidden="true">
+          <svg viewBox="0 0 80 90"><use href="#sitter"/></svg>
+        </div>
         <h3>Full system</h3>
         <p class="for">Complex, multi-part features</p>
         <div class="amount">$25<small>and up</small></div>
@@ -443,9 +594,14 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 </section>
 
 <!-- ================= CONTACT ================= -->
-<section id="contact" style="padding-top:0">
+<section id="contact" style="padding-top:150px">
   <div class="wrap">
     <div class="contact">
+      <!-- dev hammering on the corner of the contact box -->
+      <div class="dev stand hide-sm" style="right:40px;top:-138px" aria-hidden="true">
+        <span class="bubble">ready when you are</span>
+        <svg viewBox="0 0 64 100"><use href="#builder"/></svg>
+      </div>
       <div>
         <h2>Got a project?</h2>
         <p class="sub">Send me what you need and I'll get right to you. Discord gets the fastest reply.</p>
@@ -466,52 +622,119 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
   </div>
 </section>
 
-<footer><div class="wrap"><span>Built by Ashton</span><span>Roblox scripter for hire</span></div></footer>
+<footer><div class="wrap"><span class="term">&gt; hire ashton <b>✓ available</b></span><span>Roblox scripter for hire</span></div></footer>
 <div class="toast" id="toast" role="status">Discord copied: ashton_yawns1000</div>
 
+<!-- ============ the dev characters (original blocky builders) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- sitter: legs dangle below y=56, so it "sits" on whatever edge it's placed on -->
+  <symbol id="sitter" viewBox="0 0 80 90">
+    <g class="leg-l"><rect x="29" y="54" width="10" height="24" rx="2" fill="#26314d"/><rect x="28" y="75" width="12" height="6" rx="2" fill="#eef1f8"/></g>
+    <g class="leg-r"><rect x="41" y="54" width="10" height="24" rx="2" fill="#26314d"/><rect x="40" y="75" width="12" height="6" rx="2" fill="#eef1f8"/></g>
+    <rect x="25" y="28" width="30" height="28" rx="4" fill="#4a7dff"/>
+    <rect x="34" y="28" width="12" height="5" rx="2" fill="#3a6cf0"/>
+    <rect x="28" y="4" width="24" height="22" rx="5" fill="#f2c9a6"/>
+    <rect x="28" y="4" width="24" height="7" rx="3" fill="#5b3a29"/>
+    <circle cx="35.5" cy="15" r="1.8" fill="#1a1405"/><circle cx="44.5" cy="15" r="1.8" fill="#1a1405"/>
+    <path d="M36.5 20q3.5 2.6 7 0" stroke="#1a1405" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M25.5 15a14.5 13 0 0 1 29 0" stroke="#ffc94d" stroke-width="3" fill="none"/>
+    <rect x="23" y="12" width="6" height="10" rx="2" fill="#ffc94d"/><rect x="51" y="12" width="6" height="10" rx="2" fill="#ffc94d"/>
+    <rect x="18" y="31" width="8" height="18" rx="3" fill="#4a7dff"/><rect x="54" y="31" width="8" height="18" rx="3" fill="#4a7dff"/>
+    <rect class="glow" x="24" y="38" width="32" height="2" fill="#3ddc97" opacity=".9"/>
+    <rect x="26" y="36" width="28" height="16" rx="2" fill="#8f9ab3"/>
+    <circle cx="40" cy="44" r="2.2" fill="#eef1f8" opacity=".8"/>
+    <rect x="21" y="51" width="38" height="4" rx="1.5" fill="#c9d3ea"/>
+    <rect class="tap" x="19" y="47" width="8" height="6" rx="2.5" fill="#f2c9a6"/>
+    <rect class="tap2" x="53" y="47" width="8" height="6" rx="2.5" fill="#f2c9a6"/>
+  </symbol>
+
+  <!-- builder: stands on its feet (bottom of viewBox), hard hat, swings a hammer -->
+  <symbol id="builder" viewBox="0 0 64 100">
+    <rect x="18" y="58" width="12" height="34" rx="2" fill="#26314d"/><rect x="32" y="58" width="12" height="34" rx="2" fill="#26314d"/>
+    <rect x="16" y="90" width="15" height="8" rx="2" fill="#5b3a29"/><rect x="31" y="90" width="15" height="8" rx="2" fill="#5b3a29"/>
+    <rect x="15" y="30" width="32" height="30" rx="4" fill="#ff7ab6"/>
+    <rect x="15" y="44" width="32" height="4" fill="#ffc94d"/>
+    <rect x="7" y="32" width="9" height="24" rx="3" fill="#ff7ab6"/><rect x="7" y="52" width="9" height="7" rx="3" fill="#f2c9a6"/>
+    <rect x="19" y="8" width="24" height="22" rx="5" fill="#f2c9a6"/>
+    <circle cx="26.5" cy="19" r="1.8" fill="#1a1405"/><circle cx="35.5" cy="19" r="1.8" fill="#1a1405"/>
+    <path d="M27.5 24q3.5 2.6 7 0" stroke="#1a1405" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+    <path d="M17 13a14 11 0 0 1 28 0Z" fill="#ffc94d"/><rect x="14" y="11" width="34" height="4" rx="2" fill="#ffc94d"/>
+    <g class="hammer">
+      <rect x="45" y="20" width="9" height="18" rx="3" fill="#ff7ab6"/>
+      <rect x="45" y="14" width="9" height="7" rx="3" fill="#f2c9a6"/>
+      <rect x="48" y="-2" width="3" height="18" fill="#8f9ab3"/>
+      <rect x="41" y="-7" width="17" height="8" rx="1.5" fill="#c9d3ea"/>
+    </g>
+  </symbol>
+</svg>
+
 <script>
-/* ---------- nav background on scroll ---------- */
+/* ---------- nav background + build-progress bar on scroll ---------- */
 const nav=document.getElementById('nav');
-addEventListener('scroll',()=>nav.classList.toggle('stuck',scrollY>30),{passive:true});
+const bar=document.getElementById('progress');
+const onScroll=()=>{
+  nav.classList.toggle('stuck',scrollY>30);
+  const max=document.documentElement.scrollHeight-innerHeight;
+  bar.style.transform=`scaleX(${max>0?scrollY/max:0})`;
+};
+addEventListener('scroll',onScroll,{passive:true});onScroll();
 
 /* ---------- work category tabs ---------- */
 const tabs=document.querySelectorAll('.tab');
-const cards=document.querySelectorAll('.work-grid .card');
+const items=document.querySelectorAll('.work > [data-cat]');
+const clipsIn=el=>el.classList.contains('card')?1:el.querySelectorAll('.card').length;
+
 tabs.forEach(tab=>{
-  tab.querySelector('.count').textContent=
-    document.querySelectorAll(`.work-grid .card[data-cat="${tab.dataset.filter}"]`).length;
+  let n=0;
+  document.querySelectorAll(`.work > [data-cat="${tab.dataset.filter}"]`).forEach(el=>n+=clipsIn(el));
+  tab.querySelector('.count').textContent=n;
 });
+/* "x clips" label on each project */
+document.querySelectorAll('.project').forEach(p=>{
+  const n=p.querySelectorAll('.card').length;
+  p.querySelector('.clips').textContent=n+(n===1?' clip':' clips');
+});
+
 function showCat(cat){
   tabs.forEach(t=>{
     const on=t.dataset.filter===cat;
     t.classList.toggle('active',on);
     t.setAttribute('aria-selected',on);
   });
-  cards.forEach(card=>{
-    const show=card.dataset.cat===cat;
-    card.classList.toggle('hidden',!show);
-    card.classList.remove('pop');
-    if(show){void card.offsetWidth;card.classList.add('pop');}
-    else card.querySelector('video')?.pause();   /* stop clips playing in a hidden tab */
+  items.forEach(el=>{
+    const show=el.dataset.cat===cat;
+    el.classList.toggle('hidden',!show);
+    el.classList.remove('pop');
+    if(show){void el.offsetWidth;el.classList.add('pop');}
+    else el.querySelectorAll('video').forEach(v=>v.pause());   /* stop clips in hidden tabs */
   });
 }
 tabs.forEach(t=>t.addEventListener('click',()=>showCat(t.dataset.filter)));
 showCat('misc');
+
+/* ---------- mouse glow on cards ---------- */
+document.querySelectorAll('.card').forEach(card=>{
+  card.addEventListener('pointermove',e=>{
+    const r=card.getBoundingClientRect();
+    card.style.setProperty('--mx',(e.clientX-r.left)+'px');
+    card.style.setProperty('--my',(e.clientY-r.top)+'px');
+  });
+});
 
 /* ---------- click-to-play videos (local .mp4 files) ---------- */
 document.querySelectorAll('.thumb').forEach(thumb=>{
   const src=(thumb.dataset.src||'').trim();
   const poster=(thumb.dataset.poster||'').trim();
   if(poster){
-    thumb.style.backgroundImage=`url("${poster}")`;
+    thumb.style.backgroundImage=`url("${encodeURI(poster)}")`;
     thumb.classList.add('has-poster');
   }
   if(!src){thumb.style.cursor='default';return;}   /* no clip yet */
   thumb.querySelector('.soon')?.remove();
   thumb.addEventListener('click',()=>{
     const v=document.createElement('video');
-    v.src=src;v.controls=true;v.autoplay=true;v.playsInline=true;
-    if(poster)v.poster=poster;
+    v.src=encodeURI(src);v.controls=true;v.autoplay=true;v.playsInline=true;
+    if(poster)v.poster=encodeURI(poster);
     thumb.classList.remove('has-poster');
     thumb.replaceChildren(v);
   },{once:true});
